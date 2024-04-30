@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VirAL - Viruses Animated Learning</title>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sentiment"></script>
+    <style>
+        body {
+            font-family: sans-serif; /* Alteração da fonte */
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #89CFF0, #0077B6);
+        }
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #106e7c;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #106e7c;
+            box-sizing: border-box; /* Garante que o tamanho total da caixa inclua bordas e preenchimento */
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #106e7c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0a4c55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Estilos adicionados para tornar a tabela responsiva */
+        @media only screen and (max-width: 600px) {
+            table, th, td {
+                display: block;
+            }
+            th, td {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BUSCA VIRAL</h1>
+        <h2>Unilab</h2>
+        <input type="text" id="palavraChave" placeholder="Digite a palavra-chave">
+        <button id="executar" onclick="executar()">Executar</button>
+        <div id="resultados">
+            <table id="tabela">
+                <tr>
+                    <th>Título</th>
+                    <th>Link</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        var Sentimento = require('sentiment');
+        var analisadorSentimento = new Sentimento();
+
+        function executar() {
+            document.getElementById('tabela').innerHTML = '<tr><th>Título</th><th>Link</th></tr>';
+            var palavraChave = document.getElementById('palavraChave').value;
+            var mesPassado = new Date();
+            mesPassado.setMonth(mesPassado.getMonth() - 1);
+            var mesPassadoISOString = mesPassado.toISOString();
+            axios.get('https://www.googleapis.com/youtube/v3/search', {
+                params: {
+                    part: "snippet",
+                    maxResults: 50,
+                    q: palavraChave,
+                    type: "video",
+                    order: "viewCount",
+                    publishedAfter: mesPassadoISOString,
+                    key: "AIzaSyAI8EuNmidbKEZHPVxXpIP5NpcP-cRT0-o",
+                    regionCode: 'BR'
+                }
+            })
+            .then(function (resposta) {
+                resposta.data.items.forEach(function(item) {
+                    var videoId = item.id.videoId;
+                    var linkVideo = "https://www.youtube.com/watch?v=" + videoId;
+                    var linha = document.createElement('tr');
+                    linha.innerHTML = '<td>' + item.snippet.title + '</td><td><a href="' + linkVideo + '">' + linkVideo + '</a></td>';
+                    document.getElementById('tabela').appendChild(linha);
+                });
+            })
+            .catch(function (erro) {
+                console.log("Erro ao fazer a requisição à API do YouTube: ", erro);
+            });
+        }
+    </script>
+</body>
+</html>
